@@ -1,0 +1,31 @@
+{
+  "workdir": "/workspace/parameter-golf",
+  "log_dir": "sweep_runs",
+  "command": ["torchrun", "--standalone", "--nproc_per_node=1", "train_gpt.py"],
+  "base_env": {
+    "DATA_PATH": "/workspace/parameter-golf/data/datasets/fineweb10B_sp1024",
+    "TOKENIZER_PATH": "/workspace/parameter-golf/data/tokenizers/fineweb_1024_bpe.model",
+    "VOCAB_SIZE": "1024",
+    "MAX_WALLCLOCK_SECONDS": "1800",
+    "VAL_LOSS_EVERY": "200",
+    "TRAIN_LOG_EVERY": "50"
+  },
+  "runs": [
+    {
+      "name": "seq1024_batch8192",
+      "env": {
+        "RUN_ID": "seq1024_batch8192",
+        "TRAIN_BATCH_TOKENS": "8192",
+        "SEQ_LEN": "1024"
+      }
+    },
+    {
+      "name": "seq2048_batch8192",
+      "env": {
+        "RUN_ID": "seq2048_batch8192",
+        "TRAIN_BATCH_TOKENS": "8192",
+        "SEQ_LEN": "2048"
+      }
+    }
+  ]
+}
