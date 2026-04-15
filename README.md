@@ -45,7 +45,7 @@ That produces an output folder with:
       "env": {
         "RUN_ID": "seq1024_batch8192",
         "TRAIN_BATCH_TOKENS": "8192",
-        "SEQ_LEN": "1024"
+        "TRAIN_SEQ_LEN": "1024"
       }
     }
   ]
