@@ -72,6 +72,52 @@ class RunSweepsTests(unittest.TestCase):
             self.assertIn("| worse | 0 | 2.07269931 | 1.30000000 | 47642 | 15863489 | worse.log |", summary_md)
             self.assertLess(summary_md.index("| better |"), summary_md.index("| worse |"))
 
+    def test_accepts_utf8_bom_config(self) -> None:
+        repo_root = Path(__file__).resolve().parents[1]
+        script_path = repo_root / "run_sweeps.py"
+
+        with tempfile.TemporaryDirectory() as tmp_dir_raw:
+            tmp_dir = Path(tmp_dir_raw)
+            workdir = tmp_dir / "workspace"
+            workdir.mkdir()
+
+            fake_train = workdir / "fake_train.py"
+            fake_train.write_text(
+                textwrap.dedent(
+                    """
+                    print("Code size: 10 bytes")
+                    print("Total submission size int8+zlib: 20 bytes")
+                    print("final_int8_zlib_roundtrip_exact val_loss:1.0 val_bpb:0.5")
+                    """
+                ).strip()
+                + "\n",
+                encoding="utf-8",
+            )
+
+            config_path = tmp_dir / "config-bom.json"
+            output_dir = tmp_dir / "outputs"
+            config_payload = json.dumps(
+                {
+                    "workdir": str(workdir),
+                    "log_dir": str(output_dir),
+                    "command": [sys.executable, "fake_train.py"],
+                    "runs": [{"name": "bom_ok"}],
+                },
+                indent=2,
+            )
+            config_path.write_text(config_payload + "\n", encoding="utf-8-sig")
+
+            completed = subprocess.run(  # noqa: S603
+                [sys.executable, str(script_path), "--config", str(config_path)],
+                cwd=str(repo_root),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertTrue((output_dir / "summary.csv").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

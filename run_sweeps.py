@@ -52,7 +52,7 @@ def parse_log(log_text: str) -> tuple[float | None, float | None, int | None, in
 
 
 def load_config(config_path: Path) -> dict[str, object]:
-    payload = json.loads(config_path.read_text(encoding="utf-8"))
+    payload = json.loads(config_path.read_text(encoding="utf-8-sig"))
     if not isinstance(payload, dict):
         raise ValueError("Config root must be a JSON object.")
     if "command" not in payload:
